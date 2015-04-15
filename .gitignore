@@ -1,3 +1,6 @@
+# Logs
+logs
+*.log
 
 # Runtime data
 pids
@@ -13,26 +16,15 @@ coverage
 # Grunt intermediate storage (http://gruntjs.com/creating-plugins#storing-task-files)
 .grunt
 
+# node-waf configuration
+.lock-wscript
+
 # Compiled binary addons (http://nodejs.org/api/addons.html)
 build/Release
 
 # Dependency directory
-# Commenting this out is preferred by some people, see
-# https://www.npmjs.org/doc/misc/npm-faq.html#should-i-check-my-node_modules-folder-into-git-
+# https://www.npmjs.org/doc/misc/npm-faq.html#should-i-check-my-node_modules-folder-into-git
 node_modules
 
-# Users Environment Variables
-.lock-wscript
-
-
-npm-debug.log
-node_modules
-bower_components
-.idea
-
-.ftpsync_settings
-.brackets
-npm-debug.log
 app/assets/private/config.json
-app/assets/private/app.log
-.gitGithub
+.idea
