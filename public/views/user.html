@@ -1,0 +1,22 @@
+<div class="well">
+    <h1>User's page</h1>
+    <h4>Logged as {{ mainCtrl.user.username }}</h4>
+    <button ng-click="logout()">Logout</button>
+</div>
+<div class="well">
+    <h3>Change password</h3>
+    <div class="row">
+        <form>
+            <div class="form-group">
+                <input class="form-control floating-label" id="focusedInput" type="password" ng-model="user_edit.oldPassword" placeholder="Old password">
+            </div>
+            <div class="form-group">
+                <input class="form-control floating-label" id="focusedInput" type="password" ng-model="user_edit.newPassword" placeholder="New password">
+            </div>
+            <div class="form-group">
+                <input class="form-control floating-label" id="focusedInput" type="password" ng-model="user_edit.confirmPassword" placeholder="Confirm new password">
+            </div>
+            <button type="submit" class="btn btn-primary" ng-disabled="!user_edit.oldPassword || !user_edit.newPassword || user_edit.newPassword != user_edit.confirmPassword" ng-click="savePassword()">Save<div class="ripple-wrapper"></div></button>
+        </form>
+    </div>
+</div>

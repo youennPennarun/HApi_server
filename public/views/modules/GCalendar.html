@@ -1,0 +1,26 @@
+<h1>Calendar</h1>
+
+<div ng-show = "error" >
+    <div class="alert alert-dismissable alert-danger">
+        <button type="button" class="close" data-dismiss="alert">×</button>
+        <strong>Error:</strong> <span ng-repeat="message in error.messages ">{{ message }}. </span><span>(code:{{ error.code }})</span>
+    </div>
+</div>
+<div ng-hide="calendar.items.length == 0" class="list-group">
+    <div ng-repeat="event in calendar.items" class="list-group-item" >
+        <div class="row-action-primary">
+            <i class="mdi-action-schedule"></i>
+        </div>
+        <div class="row-content">
+            <div class="action-secondary"><i class="mdi-material-info"></i></div>
+            <h4 class="list-group-item-heading">{{ event.start.dateTime | date : 'EEEE dd MMMM' }} at {{ event.start.dateTime | date : 'HH:mm' }}</h4>
+            <p class="list-group-item-text">{{ event.summary}}</p>
+        </div>
+        <div class="list-group-separator"></div>
+    </div>
+</div>
+<div ng-show="calendar.items.length == 0">
+    <div class="alert alert-success">
+        <strong>No future events</strong>
+    </div>
+</div>

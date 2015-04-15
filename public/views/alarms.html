@@ -1,0 +1,55 @@
+<div class="row">
+    <div class="col-md-9 col-sm-9 col-xm-9">
+        <h1>Alarms</h1>
+    </div>
+    <div class="col-md-3 col-sm-3 col-xm-3">
+        <a  ng-href="#/alarm/settings"><i class="pull-right btn-icon mdi-action-settings"></i></a><div class="clearfix"></div>
+    </div>
+</div>
+<div class="col-sm-12">
+    <accordion close-others="true" class="alarm-list-accordion">
+        <div ng-repeat="alarm in alarmList | orderBy:timeOfDay" on-finish-render >
+            <accordion-group>
+                <div>
+
+                    <accordion-heading is-open="status.open">
+                        {{ alarm.getTime() | date:'shortTime' }}
+                        <i class="pull-right glyphicon" ng-class="{'glyphicon-chevron-down': status.open, 'glyphicon-chevron-right': !status.open}"></i>
+                    </accordion-heading>
+                    <div class="row-action-primary checkbox">
+                        <label><input type="checkbox" ng-model="alarm.enable" value="{{alarm.enable}}" class="enable-checkbox" ng-class="{'is-checked':alarm.enable,'is-not-checked':!alarm.enable}" ng-click="updateAlarmPanel(alarm)"><span class="ripple"></span><span class="check"></span> Enabled</label>
+                    </div>
+                    <div class="row-action-primary checkbox">
+                        <label><input type="checkbox" ng-model="alarm.repeat" ng-class="{'is-checked':alarm.repeat,'is-not-checked':!alarm.repeat,}" ng-click="updateAlarmPanel(alarm)"><span class="ripple"></span><span class="check"></span> Repeat</label>
+                    </div>
+                    <div>
+                        <button class="clearfix btn btn-danger" ng-click="delete(alarm)">delete</button>
+                    </div>
+                </div>
+            </accordion-group>
+            <br>
+        </div>
+    </accordion>
+</div>
+<button class="btn btn-primary" ng-click="open()">Add an alarm</button>
+
+<script type="text/ng-template" id="myModalContent.html">
+<div class="modal-header">
+    <h3 class="modal-title">I'm a modal!</h3>
+    </div>
+<div class="modal-body">
+    <div ng-show = "insertError" >
+        <div class="alert alert-dismissable alert-danger">
+            <button type="button" class="close" data-dismiss="alert">×</button>
+            <strong>Error:</strong> <span >{{ insertError }}. </span>
+    </div>
+    </div>
+    <timepicker ng-model="newAlarm.time" ng-change="changed()" hour-step="1" minute-step="1" show-meridian="true"></timepicker>
+    <div class="row-action-primary checkbox">
+                        <label><input type="checkbox" ng-model="newAlarm.repeat"><span class="ripple"></span><span class="check"></span> Repeat</label>
+    </div>
+<div class="modal-footer">
+    <button class="btn btn-primary" ng-click="insertAlarm()" id="btn-submit-new">OK</button>
+    <button class="btn btn-warning" ng-click="cancel()" id="btn-cancel-new">Cancel</button>
+    </div>
+</script>

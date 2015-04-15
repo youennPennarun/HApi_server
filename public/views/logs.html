@@ -1,0 +1,14 @@
+<h1>Logs</h1>
+<div class="row">
+    <div class="checkbox col-lg-1 col-md-2 col-sm-3 col-xs-6" ng-repeat="level in levels">
+        <label>
+            <input type="checkbox" ng-model="level.show" checked><span class="ripple"></span><span class="check"></span> {{level.name}}
+        </label>
+    </div>
+    <div class="clearfix"></div>
+</div>
+<div ng-repeat="log in filteredResults = (filteredLogs | filter:levelFilter)">
+    <p ng-click="details(log)" class="clickable"><span class="log log-level {{ log.level }}">{{ log.level }}</span> [{{ log.date | date:'yyyy-MM-dd HH:mm:ss Z' }}]: {{log.message}}</p>
+</div>
+<pagination total-items="count()" items-per-page="numPerPage" ng-model="currentPage" ng-change="pageChanged()"></pagination>
+

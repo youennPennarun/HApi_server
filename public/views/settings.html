@@ -1,0 +1,44 @@
+
+<div class="row">
+    <div class="col-lg-8 col-md-8 col-sm-8 col-xm-8">
+        <h1>Settings</h1>
+    </div>
+
+    <div class="col-lg-3 col-md-3 col-sm-3 col-xm-3">
+        
+        <span class="dropdown" dropdown on-toggle="toggled(open)">
+            <a href class="dropdown-toggle" dropdown-toggle>
+                <i dropdown dropdown-toggle ng-disabled="disabled" class="pull-right  btn-icon mdi-navigation-more-vert"></i>
+            </a>
+            <ul class="dropdown-menu">
+                <li><a ng-href="/#/settings/logs">Logs</a></li>
+            </ul>
+        </span>
+
+    </div>
+    <div class="clearfix"></div>
+</div>
+<h3>Google apps</h3>
+<div ng-show="googleService.isSignedIn">
+    <p>Signed in as {{ googleService.user_info.emails[0].value }}</p>
+    <button class="btn btn-warning btn-raised" ng-click="google_signOut()">Sign out</button>
+</div>
+<div ng-hide="googleService.isSignedIn">
+    <button class="btn btn-primary btn-raised" ng-click="google_signIn()">Sign in</button>
+</div>
+<br>
+<h3>Spotify</h3>
+<div ng-show="spotify.isSignedIn">
+    <p>Signed in as {{ spotify.user_info.emails[0].value }}</p>
+    <button class="btn btn-warning btn-raised" ng-click="spotify_signOut()">Sign out</button>
+</div>
+<div ng-hide="spotify.isSignedIn">
+    <button class="btn btn-primary btn-raised" ng-click="spotify_signIn()">Sign in</button>
+</div>
+<h3>Raspberry</h3>
+ip: {{ raspberry.ip }}<br>
+cpu usage: {{ raspberry.cpu }} %<br>
+
+<canvas id="line" class="chart chart-line" data="cpu_data" labels="cpu_labels" >
+</canvas> 
+

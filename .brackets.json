@@ -1,0 +1,8 @@
+{
+    "jscodehints.detectedExclusions": [
+        "C:/Users/garbage/Documents/prog/web/HApi_server/public/models/EchonestService.js",
+        "C:/Users/garbage/Documents/prog/web/HApi_server/app/modules/Spotify/SpotifyAuth.js",
+        "C:/Users/garbage/Documents/prog/web/HApi_server/app/modules/Spotify/Spotify.js",
+        "C:/Users/garbage/Documents/prog/web/hapi_server_heroku/public/models/SocketFactory.js"
+    ]
+}

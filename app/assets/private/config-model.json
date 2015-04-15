@@ -1,0 +1,41 @@
+{
+    "server_config" : {
+        "PORT" : 3000,
+        "MONGO_URI" : ""
+    },
+    "google_config" : {
+        "CLIENT_ID" : "",
+        "CLIENT_SECRET" : "",
+        "REDIRECT_URL" : ""
+    },
+    "soundcloud_config" : {
+        "client_id": "",
+        "client_secret": "",
+        "redirect_url": "",
+        "response_type": "code"
+    },
+    "musicgraph_config" : {
+        "api_key": "",
+        "api_url": ""
+    },
+    "echonest_config": {
+        "api_key": "",
+        "customer_key": "",
+        "shared_secret": "",
+        "api_url": ""
+    },
+    "spotify_config": {
+        "client_id": "",
+        "client_secret": "",
+        "redirect_url": "",
+        "response_type": "",
+        "scope": "playlist-read-private+streaming+user-read-email+user-library-read"
+    },
+    "default_admin" : {
+        "username": "admin",
+        "password": "admin"
+    },
+    "session_secret":"mine turtle",
+    "sign_in_required":true,
+    "jwtSecret": "some secret thingy"
+}

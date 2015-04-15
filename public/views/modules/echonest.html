@@ -1,0 +1,12 @@
+<h3>Search similar:</h3>
+Artist name: <input ng-model="name"></input>
+<div class="btn btn-default" ng-click="searchSimilarArtist(name)">Search</div>
+<br>
+
+    <div>   </div>
+</div>
+
+
+<div ng-show=" trackListStr.length ">
+    <iframe ng-if=" trackListStr.length " src="{{trackListStr}}"  width="300" height="380" frameborder="0" allowtransparency="true"></iframe>
+</div>

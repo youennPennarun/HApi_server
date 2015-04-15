@@ -1,0 +1,6 @@
+<p><span ng-if="artists.length"> {{ artists.length }}</span><span ng-if="!artists.length">0</span> artists in your playlists</p>
+<div ng-repeat="artist in artists">
+    <div>{{artist.name}}</div>
+
+</div>
+<div class="btn btn-primary" ng-click="refreshArtists()">refresh</div>

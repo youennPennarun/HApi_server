@@ -1,0 +1,50 @@
+<div class="well">
+    <h1>{{ artist.data.name }}</h1>
+    <div ng-show="artist" class="row">
+        <div class="col-lg-3 col-md-3">
+            <img src="{{ artist.data.images[0].url }}" width=200px height=200px ng-click="playTopTracks(artist.top_tracks)">
+        </div>
+    </div>
+    <h2>Top tracks</h2>
+    <br>
+    <div ng-repeat="track in artist.top_tracks" class="row track-line">
+        <div class="content">
+            <div class="col-lg-9 col-md-9 col-sm-9 col-xs-9">
+                <div class="col-lg-1"><span class="play mdi-av-play-arrow" ng-click="player.play(track)"></span></div>
+                <div class="col-lg-11"><p>{{ track.name }}</p></div>
+            </div>
+            <div class="col-lg-2 col-md-2 col-sm-2 col-xs-2">
+                <p>{{ msToTime(track.duration_ms) }} mn</p>
+
+            </div>
+        </div>
+    </div>
+    <br>
+    <h2>Albums</h2>
+    <div ng-repeat="album in artist.albums"  class="row">
+        <div class="col-lg-3 col-md-3">
+            <img src="{{ album.images[0].url }}" width=200px height=200px ng-click="playAlbum(album, album.tracks.items[0])">
+        </div>
+        <div class="col-lg-7 col-md-7">
+            <div class="row"><p>{{ album.release_date }}</p></div>
+            <div class="row">
+                <h3>{{ album.name }}</h3>
+            </div>
+        </div>
+        <div class="row">
+            <div ng-repeat="track in album.tracks.items" class="track-line">
+                <div class="content">
+                    <div class="col-lg-9 col-md-9 col-sm-9 col-xs-9">
+                        <div class="col-lg-1"><span class="play mdi-av-play-arrow" ng-click="playAlbum(album, track)"></span></div>
+                        <div class="col-lg-11"><p>{{ track.name }}</p></div>
+                    </div>
+                    <div class="col-lg-2 col-md-2 col-sm-2 col-xs-2">
+                        <p>{{ msToTime(track.duration_ms) }} mn</p>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

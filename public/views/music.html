@@ -1,0 +1,29 @@
+<div class="well">
+    <h1>Music</h1>
+    <div class="row">
+            <div class="col-sm-7 row">
+                <div class="form-group col-lg-5 col-md-5 col-sm-5 col-xs-5">
+                    <input class="form-control floating-label" id="focusedInput" type="text" placeholder="artist name" ng-model="searchArtistName">
+                    <div class="col-lg-2 col-md-2 col-sm-2 col-xs-2">
+                        <button ng-click="searchArtist()"  class="btn btn-primary">Search</button>
+                    </div>
+                </div>
+            </div>
+    </div>
+    <br>
+
+    <div class="list-group">
+        <div ng-repeat="artist in searchArtistResult">
+            <div class="list-group-item">
+                <div ng-show="artist.images.length > 0" class="row-picture" ng-click="seeArtist(artist)">
+                    <img class="circle" ng-src="{{artist.images[0].url}}" alt="icon">
+                </div>
+                <div class="row-content">
+                    <h4 class="list-group-item-heading">{{ artist.name }}</h4>
+                    <p class="list-group-item-text">Donec id elit non mi porta gravida at eget metus  </p>
+                </div>
+            </div>
+            <div class="list-group-separator"></div>
+        </div>
+    </div>
+</div>

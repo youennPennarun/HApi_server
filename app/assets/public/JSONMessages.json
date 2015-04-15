@@ -1,0 +1,73 @@
+{
+    "status": {
+        "success": "SUCCESS",
+        "error": "ERROR"
+    },
+    "error": {
+        "UNKNOWN": {
+            "code": -1,
+            "message": "Unknown error",
+            "source": "unknown"
+        },
+        "ALREADY_SIGNED_IN": {
+            "code": 1,
+            "message": "Already signed in",
+            "source": "unknown"
+        },
+        "LOGIN_FAILED": {
+            "code": 2,
+            "message": "Invalid credentials",
+            "source": "unknown"
+        },
+        "NOT_LOGGED_IN": {
+            "code": 401,
+            "message": "Not logged in",
+            "source": "unknown"
+        },
+        "GOOGLE_NOT_SIGNED_UP": {
+            "code": 10,
+            "message": "Google account not linked",
+            "source": "unknown"
+        },
+        "GOOGLE_UNAUTHORIZED": {
+            "code": 11,
+            "message": "Invalid Google credentials",
+            "source": "google"
+        },
+        "GOOGLE_APP_NOT_INSTALLED": {
+            "code": 13,
+            "message": "The authenticated user has not installed the app",
+            "source": "google"
+        },
+        "GOOGLE_APP_NOT_GRANTED": {
+            "code": 14,
+            "message": "The authenticated user has not granted the app",
+            "source": "google"
+        },
+        "GOOGLE_INVALID_ACCESS_LEVEL": {
+            "code": 15,
+            "message": "Invalid accessLevel",
+            "source": "google"
+        },
+        "GOOGLE_APP_CONF_ERROR_DRIVE": {
+            "code": 16,
+            "message": "The app does not exist or is not properly configured as a Google Drive app.",
+            "source": "google"
+        },
+        "GOOGLE_APP_BLACKLISTED": {
+            "code": 17,
+            "message": "The app is blacklisted as a Google Drive app.",
+            "source": "google"
+        },
+        "GOOGLE_FILE_NOT_FOUND": {
+            "code": 18,
+            "message": "File not found",
+            "source": "google"
+        },
+        "MONGOOSE_CAST_ERROR": {
+            "code": 20,
+            "message": "Invalid value",
+            "source": "mongoose"
+        }
+    }
+}

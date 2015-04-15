@@ -1,0 +1,16 @@
+<div class="navbar navbar-inverse">
+    <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-inverse-collapse">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="/">Brand</a>
+    </div>
+    <div class="navbar-collapse collapse navbar-inverse-collapse">
+        <ul class="nav navbar-nav">
+            <li <% if(page_name == "home"){%>class="active"<%}%>><a href="/">Home</a></li>
+            <li <% if(page_name == "alarms"){%>class="active"<%}%>><a href="/alarms">Alarms</a></li>
+        </ul>
+    </div>
+</div>

@@ -1,0 +1,49 @@
+<% layout('layout')%>
+
+<div content>
+    <h1><%=title%></h1>
+    <p>Alarms manager<p>
+    <div class="col-sm-12">
+    <ul>
+    <% for(var i=0;i < alarmList.length;i++){ %>
+        <li>
+            alarm at <%=alarmList[i].hour%>:<%=alarmList[i].minute%> <a href='/alarms/delete/<%=alarmList[i]._id%>'>delete</a>
+        </li>
+    <% } %>
+    </ul>
+    <br><br>
+    <form method="POST" action="">
+        <div class="col-md-5 col-sm-5">
+            <div class="input-group clockpicker" data-placement="bottom" data-align="top" data-autoclose="true">
+                <input type="text" class="form-control " value="13:14" name="time">
+                <span class="input-group-addon"></span>
+                <span class="glyphicon glyphicon-time"></span>
+            </div>
+            <br><br>
+            <button type="success" class="btn btn-primary">
+                Add an alarm
+            </button>
+        </div>
+    </form>
+    </div>
+    <br>
+    <div class="col-sm-12">
+        <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+            <div class="panel panel-default">
+                <div class="panel-heading" role="tab" id="headingTwo">
+                    <h4 class="panel-title">
+                        <a class="collapsed" data-toggle="collapse" data-parent="#accordion" href="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                            Collapsible Group Item #2
+                        </a>
+                    </h4>
+                </div>
+                <div id="collapseTwo" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingTwo">
+                    <div class="panel-body">
+                        t1
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+</div>

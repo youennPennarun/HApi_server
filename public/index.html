@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="eng" ng-app="haPi" ng-controller="MainController as mainCtrl">
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="icon" href="assets/favicon.ico">
+        <title>{{ mainCtrl.title }}</title>
+        <link rel='stylesheet'  href='/bootstrap/dist/css/bootstrap.min.css'>
+        <link rel="stylesheet" href="bootstrap-material-design/dist/css/material-wfont.min.css">
+        <link rel="stylesheet" href="bootstrap-material-design/dist/css/ripples.min.css"> 
+        <link rel="stylesheet" href='/assets/js/clockpicker/dist/bootstrap-clockpicker.min.css'>
+        <link rel="stylesheet" href="//cdn.rawgit.com/FezVrasta/dropdown.js/master/jquery.dropdown.css">
+        <link href="//fezvrasta.github.io/snackbarjs/dist/snackbar.min.css" rel="stylesheet">
+        <link rel="stylesheet" href='/assets/css/style.css'>
+        <link rel="stylesheet" href="/angular-chart.js/dist/angular-chart.css">
+        <link rel="stylesheet" type="text/css" href="ng-prettyjson/dist/ng-prettyjson.min.css">
+    </head>
+    <body>
+        <ng-include src=" '/views/navbar.html' "></ng-include>
+        <div class="container">
+            <div ui-view></div>
+        </div>
+        <div ng-show="mainCtrl.pageLoading" id="loading-container"></div>
+
+        <script src="https://cdn.socket.io/socket.io-1.3.2.js"></script>
+        <script src='/jquery/dist/jquery.min.js'></script>
+        <script src="/angular/angular.min.js"></script>
+        <script src="/angular-bootstrap/ui-bootstrap.min.js"></script>
+        <script src="/angular-bootstrap/ui-bootstrap-tpls.min.js"></script>
+        <script src="/angular-ui-router/release/angular-ui-router.min.js"></script>
+        <script src="app.js"></script>
+        <!-------------------------------------------->
+        <script src="controllers/MainController.js"></script>
+        <script src="controllers/UserController.js"></script>
+        <script src="controllers/AlarmController.js"></script>
+        <script src="controllers/AlarmSettingsController.js"></script>
+        <script src="controllers/SettingsController.js"></script>
+        <script src="controllers/MusicController.js"></script>
+        <script src="controllers/ArtistController.js"></script>
+        <script src="controllers/LogController.js"></script>
+
+        <script src="models/RequestService.js"></script>
+        <script src="controllers/modules/GCalendarController.js"></script>
+        <script src="controllers/modules/EchonestController.js"></script>
+        <script src="models/Alarm.js"></script>
+        <script src="models/GoogleService.js"></script>
+        <script src="models/EchonestService.js"></script>
+        <script src="models/SoundcloudService.js"></script>
+        <script src="models/UserService.js"></script>
+        <script src="models/SocketFactory.js"></script>
+        <script src="models/MusicService.js"></script>
+        <script src="models/SpotifyService.js"></script>
+        <script src="models/music/ArtistService.js"></script>
+        <script src="models/LogFactory.js"></script>
+        
+
+        <script src="directives/onFinishRender.js"></script>
+        <script src="directives/music-menu.js"></script>
+        <!-------------------------------------------->
+        
+        <!--
+        <script src="hapi.min.js"></script>
+-->
+        <script src='/bootstrap/dist/js/bootstrap.min.js'></script>
+        <script src="/Chart.js/Chart.min.js"></script>
+        <script src="/angular-chart.js/dist/angular-chart.js"></script>
+        <script src='/assets/js/clockpicker/dist/bootstrap-clockpicker.min.js'></script>
+        <script src="bootstrap-material-design/dist/js/material.min.js"></script>
+        <script src="bootstrap-material-design/dist/js/ripples.min.js"></script>
+        <script src="//fezvrasta.github.io/snackbarjs/dist/snackbar.min.js"></script>
+        <script type="text/javascript" src="ng-prettyjson/dist/ng-prettyjson.min.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/noUiSlider/6.2.0/jquery.nouislider.min.js"></script>
+        <script src="https://cdn.rawgit.com/FezVrasta/dropdown.js/master/jquery.dropdown.js"></script>
+        <script>
+$("#dropdown-menu select").dropdown();
+        </script>
+        <script>
+$(".clockpicker").clockpicker({default:"now"});
+
+        </script>
+        
+    </body>
+
