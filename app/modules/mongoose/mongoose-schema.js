@@ -40,6 +40,11 @@ module.exports = function () {
             musicgraphId: String,
             useItAsAlarm: Boolean
         }),
+        raspberrySchema = new Schema({
+            socketId: String,
+            name: String,
+            ip: String
+        }),
         playlistSchema = new Schema ({
             idPlaying: Number,
             tracks: [{
@@ -84,5 +89,6 @@ module.exports = function () {
     mongoose.model('User', userSchema);
     mongoose.model('Artist', artistSchema);
     mongoose.model('Playlist', playlistSchema);
+    mongoose.model('Raspberry', raspberrySchema);
     return Schema;
 };

@@ -1,8 +1,10 @@
 /*global module*/
 /*global require*/
 /*global console*/
-var Raspberry = require('../modules/raspberry/Raspberry.js'),
-    Spotify = require("../modules/Spotify/Spotify.js")
+var RaspberryModel = require('../modules/mongoose/mongoose-models.js')().Raspberry,
+    Raspberry = require('../modules/Raspberry.js'),
+    Spotify = require("../modules/Spotify/Spotify.js");
+    winston = require('winston');
 module.exports = function (io, socket) {
     'use strict';
     socket.on('pi:sound:play', function (data){
@@ -46,34 +48,40 @@ module.exports = function (io, socket) {
         }
     });
     socket.on('pi:sound:resume', function (){
-        if (Raspberry.socket) {
-            io.sockets.connected[Raspberry.socket.id].emit('sound:resume');
-        }
+	winston.info("requesting resume");
+        Raspberry.isConnected().then(function (socketId) {
+            if (socketId) {
+		winston.info("resume");
+                io.sockets.connected[socketId].emit('sound:resume');
+            } else {
+		winston.warning("pi not set");
+	    }
+        });
     });
     socket.on('pi:sound:pause', function (data){
-        if (Raspberry.socket) {
-            io.sockets.connected[Raspberry.socket.id].emit('sound:pause', {});
-        }
+	winston.info("requesting pause");
+        Raspberry.isConnected().then(function (socketId) {
+            if (socketId) {
+		winston.info("resume");
+                io.sockets.connected[socketId].emit('sound:pause');
+            } else {
+		winston.warning("pi not set");
+	    }
+        });
     });
     socket.on('pi:sound:volume:get', function (){
-        if (Raspberry.socket) {
-            io.sockets.connected[Raspberry.socket.id].emit('sound:volume:get');
-        }
-    });
-    socket.on('pi:sound:next', function (){
-        if (Raspberry.socket) {
-            io.sockets.connected[Raspberry.socket.id].emit('sound:next');
-        }
-    });
-    socket.on('pi:sound:previous', function (){
-        if (Raspberry.socket) {
-            io.sockets.connected[Raspberry.socket.id].emit('sound:previous');
-        }
+        Raspberry.isConnected().then(function (socketId) {
+            if (socketId) {
+                io.sockets.connected[socketId].emit('sound:volume:get');
+            }
+        });
     });
     socket.on('pi:sound:volume:set', function (data){
-        if (Raspberry.socket) {
-            io.sockets.connected[Raspberry.socket.id].emit('sound:volume:set', data);
-        }
+        Raspberry.isConnected().then(function (socketId) {
+            if (socketId) {
+                io.sockets.connected[socketId].emit('sound:volume:set', data);
+            }
+        });
     });
     socket.on('pi:notify:sound:volume', function (data){
         socket.broadcast.emit('pi:notify:sound:volume', data);
@@ -81,9 +89,4 @@ module.exports = function (io, socket) {
     socket.on('pi:player:status', function (data){
         socket.broadcast.emit('pi:player:status', data);
     });
-    function emitToPi(msg, data) {
-        if (Raspberry.socket) {
-            io.sockets.connected[Raspberry.socket.id].emit(msg, data);
-        }
-    }
 };

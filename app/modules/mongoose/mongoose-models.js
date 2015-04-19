@@ -11,7 +11,8 @@ module.exports = function () {
             SpotifyToken : mongoose.model('SpotifyToken'),
             User : mongoose.model('User'),
             Artist : mongoose.model('Artist'),
-            Playlist : mongoose.model('Playlist')
+            Playlist : mongoose.model('Playlist'),
+            Raspberry : mongoose.model('Raspberry')
         };
     return models;
 };

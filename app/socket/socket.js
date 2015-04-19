@@ -6,12 +6,11 @@ var config = require('../assets/private/config.json'),
     JSONResult = require('../modules/models/JSONResult.js'),
     MusicGraph = require('../modules/MusicGraph.js'),
     Spotify = require('../modules/Spotify/Spotify.js'),
-    Emitter = require('../modules/emitter.js'),
     models = require('../modules/mongoose/mongoose-models.js')(),
+    RaspberryModel = models.Raspberry,
     Alarm = require('../modules/models/Alarm.js'),
     JSONResult = require('../modules/models/JSONResult.js'),
-    MongooseError = require('../modules/mongoose/MongooseError.js'),
-    Raspberry = require('../modules/raspberry/Raspberry.js'),
+    winston = require('winston'),
     Logger = require('../modules/Logger.js');
 
 var socketHandler = function (server) {
@@ -28,35 +27,51 @@ var socketHandler = function (server) {
         Logger.info('new client connected as ' + socket.decoded_token.username, {source: 'connection', handshake: socket.handshake});
         require("./musicSocket.js")(io, socket);
         require("./soundSocket.js")(io, socket);
+        require("./playlistSocket.js")(io, socket);
+
         socket.on('pi:is-logged-in', function () {
-            socket.emit('pi:is-logged-in', (Raspberry.socket !== null));
+            RaspberryModel.findOne({}, function (rasp) {
+                socket.emit('pi:is-logged-in', (rasp && rasp.socketId !== undefined));
+            })
         });
 
-        socket.on('pi:login', function () {
-            Logger.info('pi logged in', {});
-            Raspberry.socket = socket;
-            socket.broadcast.emit('pi:logged-in');
+        socket.on('pi:login', function (data) {
+            Logger.info('pi logged in', {"socketId": socket.id});
+            if (data.name && data.ip) {
+		console.log(data.name);
+                RaspberryModel.findOne({name: data.name}, function (err, rasp) {
+			console.log(rasp);
+                   if (rasp) {
+                       RaspberryModel.update({name: data.name}, {$set: {socketId: socket.id, ip: data.ip}}, function(err, saved) {
+				if(!err){
+		                    socket.broadcast.emit('pi:logged-in', rasp);
+				}
+			});
+                   } else {
+                       rasp = new RaspberryModel();
+                       rasp.socketId = socket.id;
+                       rasp.name = data.name;
+                       rasp.ip = data.ip;
+                       rasp.save(function (err, saved) {
+				if(!err){
+		                    socket.broadcast.emit('pi:logged-in', rasp);
+				}
+			});
+                   }
+                });
+            }
         });
         socket.on('pi:cpu', function (data) {
             socket.broadcast.emit("pi:cpu", data);
         });
         socket.on('disconnect', function () {
-            Logger.info('user disconnected ' + socket.decoded_token.username, {source: 'disconnected'});
-            if (Raspberry.socket === socket) {
-                Raspberry.socket = null;
-                Logger.warn('pi disconnected', {source: 'disconnected'});
-                io.sockets.emit('pi:logged-out');
-            }
-        });
-        socket.on('pi:ip:get', function (data) {
-            if (Raspberry.socket) {
-                socket.emit("pi:ip:get", {ip: Raspberry.ip});
-            }
-        });
-        socket.on('pi:ip:set', function (data) {
-            if (Raspberry.socket) {
-                Raspberry.ip = data.ip;
-            }
+            Logger.info('user disconnected ' + socket.decoded_token.username, {source: 'disconnected', "socketId": socket.id});
+            RaspberryModel.findOneAndUpdate ({socketId: socket.id},{socketId: null}, function (err, rasp) {
+		if (rasp){
+                	Logger.warn('pi disconnected', {source: 'disconnected'});
+                	io.sockets.emit('pi:logged-out');
+		}
+            });
         });
         socket.on('alarm:get', function (data, callback) {
             if (!data || !data.alarm) {
