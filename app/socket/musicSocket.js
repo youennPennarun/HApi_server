@@ -233,7 +233,7 @@ module.exports = function (io, socket) {
             search = [];
         if (Raspberry.socket) {
             SpotifyAuth.isSet(function (isSet) {
-                Artist.get(socket.decoded_token, function (err, artists) {
+                Artist.get(socket.decoded_token).then(function(artists) {
                     if (artists && artists.length !== 0) {
                         if (!data) {
                             data = {number: 3};
@@ -255,6 +255,8 @@ module.exports = function (io, socket) {
                     } else {
                         socket.emit("music:discovering", {status: "error", code : 2, error: "artist list not set"});
                     }
+                }, function (err) {
+                    socket.emit("music:discovering", {status: "error", error: err});
                 });
             });
         } else {

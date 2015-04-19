@@ -3,7 +3,8 @@
 /*global require*/
 var ArtistModel = require('./mongoose/mongoose-models.js')().Artist,
     Spotify = require('./Spotify/Spotify.js'),
-    SpotifyAuth = require('./Spotify/SpotifyAuth.js');
+    SpotifyAuth = require('./Spotify/SpotifyAuth.js'),
+    Q = require("q");
 
 
 var Artist = function () {'use strict'; };
@@ -67,10 +68,17 @@ Artist.refresh = function (user, callback) {
 };
 
 Artist.get = function (user, callback) {
-    var artistDB = new ArtistModel();
+    var deferred = Q.defer(),
+        artistDB = new ArtistModel();
     artistDB.find({}, function (err, list) {
         callback(err, list);
+        if(!err) {
+            deferred.resolve(list);
+        } else {
+            deferred.reject(err);
+        }
     });
+    return deferred.promise;
 };
 Artist.insert = function (user, artist, callback) {
     'use strict';

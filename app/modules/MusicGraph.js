@@ -199,8 +199,9 @@ MusicGraph.responseHandler = function (response, body, callback) {
         callback({type: "HTTP", code: response.statusCode});
     }
 };
-MusicGraph.randomPlaylist = function (artists, options, callback) {
+MusicGraph.randomPlaylist = function (artists, options) {
     'use strict';
+    var deferred = Q.defer();
     if (!options) {
         options = {};
     }
@@ -212,18 +213,20 @@ MusicGraph.randomPlaylist = function (artists, options, callback) {
             MusicGraph.generateArtistPlaylist(artist.musicgraphId, {tempo: options.tempo}, function (err, data) {
                 if (!err) {
                     if (data.pagination.count < 1) {
-                        callback("empty playlist");
+                        deferred.reject("empty playlist");
                     } else {
                         callback(null, data.data);
+                        deferred.resolve(data.data);
                     }
                 } else {
-                    callback(err);
+                    deferred.reject(err);
                 }
             });
         } else {
-            callback(err);
+            deferred.reject(err);
         }
     });
+    return deferred.promise;
 };
 /**
  *
@@ -231,6 +234,12 @@ MusicGraph.randomPlaylist = function (artists, options, callback) {
  * @param options: [optional]
  * @param callback: [required]
  */
+MusicGraph.getTrack = function(artists, i, options) {
+    var tempo = MusicGraph.fluidTempo(i, options.number);
+    MusicGraph.randomPlaylist(artists, {tempo: tempo.value}, function (err, data) {
+
+    });
+}
 MusicGraph.playlistFromArtistNames = function (artists, options, callback) {
     'use strict';
     var i = 0,
@@ -242,23 +251,20 @@ MusicGraph.playlistFromArtistNames = function (artists, options, callback) {
     if (!options.number) {
         options.number = 3;
     }
-    if (!options.tempo || options.tempo !== 'any' || options.tempo !== 'increasing' || options.tempo !== 'descending') {
+    if (!options.tempo || (options.tempo !== 'any' && options.tempo !== 'increasing' && options.tempo !== 'descending')) {
         options.tempo = "any";
     }
     for (i = 0; i < options.number; i += 1) {
         (function getTrack(i) {
             requests += 1;
             var tempo = MusicGraph.fluidTempo(i, options.number),
-                track = {},
-                artistTmp = null,
                 title,
                 artist_name,
                 random;
-            MusicGraph.randomPlaylist(artists, {tempo: tempo.value}, function (err, data) {
-                var valid = false,
-                    current_track = {};
-
-                if (!err) {
+            MusicGraph.randomPlaylist(artists, {tempo: tempo.value})
+                .then(function(data) {
+                    var valid = false,
+                        current_track = {};
                     if (data.length > 0) {
                         while (!valid) {
                             random = Math.floor((Math.random() * data.length));
@@ -320,10 +326,9 @@ MusicGraph.playlistFromArtistNames = function (artists, options, callback) {
                         valid = false;
                         getTrack(i);
                     }
-                } else {
+                }, function (err) {
                     callback(err);
-                }
-            });
+                });
         })(i);
     }
 };
