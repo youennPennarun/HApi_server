@@ -1,13 +1,13 @@
-var Album = function (name, type, images, spotifyData) {
+var Album = function (name, album_type, images, spotifyData) {
     'use strict';
     this.name = name;
-    this.type = type;
+    this.album_type = album_type;
     if(images) {
         this.images = images;
     } else {
         this.images = [];
     }
-    this.spotifyData = spotifyData;
+    this.spotifyData = {id: spotifyData.id, uri: spotifyData.uri};
 };
 
 module.exports = Album;

@@ -31,8 +31,13 @@ SpotifyAuth.isSet = function (callback) {
                     d.setHours(d.getHours() + 1);
                     SpotifyAuth.credentials.expires_date = d.getTime();
                     SpotifyAuth.credentials.access_token = data.access_token;
-                    SpotifyAuth.save();
-                    callback((SpotifyAuth.credentials !== null && SpotifyAuth.credentials.access_token !== null));
+                    SpotifyAuth.save(function(err) {
+                        if (!err) {
+                            callback((SpotifyAuth.credentials !== null && SpotifyAuth.credentials.access_token !== null));
+                        } else {
+                            callback(false);
+                        }
+                    });
                 },
                 function (err) {
                     console.log(err);
@@ -128,7 +133,7 @@ SpotifyAuth.userInfo = function (callback) {
     });
 };
 
-SpotifyAuth.save = function () {
+SpotifyAuth.save = function (callback) {
     'use strict';
     var spotifyToken = models.SpotifyToken();
     models.SpotifyToken.findOne(function (err, token) {
@@ -144,6 +149,7 @@ SpotifyAuth.save = function () {
             Spotify.SpotifyApi.setAccessToken(SpotifyAuth.credentials.access_token);
             Spotify.SpotifyApi.setRefreshToken(SpotifyAuth.credentials.refresh_token);
             spotifyToken.save(function (err, saved) {
+                callback(err);
             });
         } else {
             token.access_token = SpotifyAuth.credentials.access_token;
@@ -154,7 +160,9 @@ SpotifyAuth.save = function () {
             Spotify.SpotifyApi.setRefreshToken(SpotifyAuth.credentials.refresh_token);
             models.SpotifyToken.update({_id: token._id}, token, {}, function () {
                 if (err) {
-                    throw (err);
+                    callback(err);
+                } else {
+                    callback(null);
                 }
             });
 

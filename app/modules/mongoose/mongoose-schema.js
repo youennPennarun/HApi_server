@@ -39,6 +39,33 @@ module.exports = function () {
             spotifyId: String,
             musicgraphId: String,
             useItAsAlarm: Boolean
+        }),
+        playlistSchema = new Schema ({
+            idPlaying: Number,
+            tracks: [{
+                name: String,
+                duration_ms: Number,
+                artists: [{
+                    name: String,
+                    spotifyData: {
+                        id: String,
+                        uri: String
+                    }
+                }],
+                album: {
+                    name: String,
+                    album_type: String,
+                    images: [],
+                    spotifyData: {
+                        id: String,
+                        uri: String
+                    }
+                },
+                spotifyData: {
+                    id: String,
+                    uri: String
+                }
+            }]
         });
 
     userSchema.methods.generateHash = function (password) {
@@ -56,5 +83,6 @@ module.exports = function () {
     mongoose.model('SpotifyToken', SpotifyTokenShema);
     mongoose.model('User', userSchema);
     mongoose.model('Artist', artistSchema);
+    mongoose.model('Playlist', playlistSchema);
     return Schema;
 };

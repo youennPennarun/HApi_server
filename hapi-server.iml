@@ -6,5 +6,6 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="hapi-server node_modules" level="project" />
+    <orderEntry type="library" name="HApi_server node_modules" level="project" />
   </component>
 </module>

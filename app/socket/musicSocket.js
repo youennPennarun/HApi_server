@@ -8,21 +8,18 @@ var MusicGraph = require('../modules/MusicGraph.js'),
     Spotify = require('../modules/Spotify/Spotify.js'),
     SpotifyAuth = require('../modules/Spotify/SpotifyAuth.js'),
     Raspberry = require('../modules/raspberry/Raspberry.js'),
-    Album = require('../modules/models/album/Album.js'),
-    SpotifyAlbum = require('../modules/models/album/SpotifyAlbum.js'),
-    SpotifyArtist = require('../modules/models/artist/SpotifyArtist.js'),
-    Artist = require('../modules/models/artist/Artist.js'),
     Track = require('../modules/models/track/Track.js'),
-    SpotifyTrack = require('../modules/models/track/SpotifyTrack.js'),
     winston = require('winston'),
+    models = require('../modules/mongoose/mongoose-models.js')(),
+    Playlist = models.Playlist,
     Q = require("q");
 module.exports = function (io, socket) {
     'use strict';
     socket.on("music:playlist:add", function (data) {
-    	console.log("music:playlist:add");
-	    if(data && data.type) {
+        console.log("music:playlist:add");
+        if(data && data.type) {
             if (data.type == "track" && data.track && data.track.id) {
-            	console.log("adding track");
+                console.log("adding track");
                 Track.getTrack(data.track.id).then(function (track) {
                     Raspberry.playlist.push(track);
                     io.sockets.emit('music:playlist:add', {"type": "track", "track": track});
@@ -37,78 +34,101 @@ module.exports = function (io, socket) {
                     }
                 }
                 Q.all(promises).then(function(tracks) {
-		    for( var i = 0; i < tracks.length; i++) {
-                    	Raspberry.playlist.push(tracks[i]);
-		    }
+                    for( var i = 0; i < tracks.length; i++) {
+                        Raspberry.playlist.push(tracks[i]);
+                    }
                     io.sockets.emit('music:playlist:add', {"type": "trackset", "tracks": tracks});
                 }, function(err) {
-                   //TODO
-                   console.log(err);
+                    //TODO
+                    console.log(err);
                 });
             } else if (data.type == "playlist" && data.playlist.id) {
-            	Track.getPlaylistTracks(data.playlist.id).then(function(tracks) {
-		    for( var i = 0; i < tracks.length; i++) {
-                    	Raspberry.playlist.push(tracks[i]);
-		    }
+                Track.getPlaylistTracks(data.playlist.id).then(function(tracks) {
+                    for( var i = 0; i < tracks.length; i++) {
+                        Raspberry.playlist.push(tracks[i]);
+                    }
                     io.sockets.emit('music:playlist:add', {"type": "trackset", "tracks": tracks});
-            	}, function (err) {
-            		//TODO
-            	});
+                }, function (err) {
+                    //TODO
+                });
             }
         }
     });
     socket.on("music:playlist:get", function (data, callback) {
-	var response;
-	if(!Raspberry.playlist) {
-		Raspberry.playlist = [];
-	}
-	console.log(Raspberry);
-	console.log("----------------------------------------");
-	response = {"status": "success", "type": "trackset", "playlist": Raspberry.playlist, "idPlaying": Raspberry.idPlaying};
-	console.log(response);
-	if (callback) {
-		callback(response);
-	} else {
-		socket.emit("music:playlist:get", response);
-	}
+        var response;
+        var Playlist = models.Playlist;
+        Playlist.findOne({}, function (err, playlist) {
+            if (!err) {
+                if (playlist) {
+                    response = {
+                        "status": "success",
+                        "type": "trackset",
+                        "playlist": playlist.tracks,
+                        "idPlaying": playlist.idPlaying
+                    };
+                } else {
+                    response = {
+                        "status": "success",
+                        "type": "trackset",
+                        "playlist": [],
+                        "idPlaying": -1
+                    };
+                }
+            } else {
+                response = {"status": "error", "error": err};
+            }
+            if (callback) {
+                callback(response);
+            } else {
+                socket.emit("music:playlist:get", response);
+            }
+        });
+
     });
     socket.on("music:playlist:playing:setId", function (data) {
-	if (data.idPlaying < -1 ) {
-		data.idPlaying = -1;
-	}else if(data.idPlaying > Raspberry.playlist.length) {
-		if(Raspberry.playlist.length == 0) {
-			data.idPlaying = -1
-		} else {
-			data.idPlaying = Raspberry.playlist.length-1;
-		}
-	}
-	Raspberry.idPlaying = data.idPlaying
-        socket.broadcast.emit('music:playlist:playing:id', data);
+        Playlist.findOne({}, function (err, playlist) {
+            if (!err && playlist) {
+                if (data.idPlaying < -1 ) {
+                    data.idPlaying = -1;
+                }else if(data.idPlaying > playlist.tracks.length) {
+                    if(playlist.tracks.length == 0) {
+                        data.idPlaying = -1
+                    } else {
+                        data.idPlaying = playlist.tracks.length-1;
+                    }
+                }
+                playlist.idPlaying = data.idPlaying;
+                playlist.save();
+                socket.broadcast.emit('music:playlist:playing:id', data);
+            }
+        })
+
     });
     socket.on("music:playlist:set", function (data) {
+        var Playlist = models.Playlist;
         if(data && data.type) {
             if (data.type == "track" && data.track && data.track.id) {
                 Track.getTrack(data.track.id).then(function (track) {
-		    Raspberry.playlist = [];
+                    Raspberry.playlist = [];
                     Raspberry.playlist.push(track);
-		    Raspberry.idPlaying = 0;
+                    Raspberry.idPlaying = 0;
                     io.sockets.emit('music:playlist:set', {"type": "track", "track": track});
                 }, function (err) {
 
                 });
             } else if(data.type == "trackset" && data.tracks) {
-                var promises = []
+                var promises = [];
                 for (var i = 0; i < data.tracks.length; i ++) {
                     if(data.tracks[i].id) {
                         promises.push(Track.getTrack(data.tracks[i].id));
                     }
                 }
                 Q.all(promises).then(function(tracks) {
-		    Raspberry.playlist = [];
-		    for( var i = 0; i < tracks.length; i++) {
-                    	Raspberry.playlist.push(tracks[i]);
-		    }
-		    Raspberry.idPlaying = 0;
+                    Raspberry.playlist = [];
+                    for( var i = 0; i < tracks.length; i++) {
+                        Raspberry.playlist.push(tracks[i]);
+                    }
+                    Raspberry.idPlaying = 0;
                     io.sockets.emit('music:playlist:set', {"type": "trackset", "tracks": tracks});
                 }, function(err) {
                     //TODO
@@ -116,12 +136,22 @@ module.exports = function (io, socket) {
                 });
             } else if (data.type == "playlist" && data.playlist.id) {
                 Track.getPlaylistTracks(data.playlist.id).then(function(tracks) {
-		    Raspberry.playlist = [];
-		    for( var i = 0; i < tracks.length; i++) {
-                    	Raspberry.playlist.push(tracks[i]);
-		    }
-		    Raspberry.idPlaying = 0;
-                    io.sockets.emit('music:playlist:set', {"type": "trackset", "tracks": tracks});
+                    Playlist.remove({}, function (err) {
+                        if (!err) {
+                            var p = new Playlist();
+                            p.idPlaying = 0;
+			    
+                            p.tracks = tracks;
+                            p.save(function(err) {
+                                if(err) {
+                                    console.log("failed on saving playlist:" + err);
+                                } else {
+                                    console.log("saved "+p);
+                                }
+                            });
+                            io.sockets.emit('music:playlist:set', {"type": "trackset", "tracks": tracks});
+                        }
+                    });
                 }, function (err) {
                     //TODO
                 });
@@ -129,25 +159,36 @@ module.exports = function (io, socket) {
         }
     });
     socket.on("music:player:next", function () {
-	if(Raspberry.playlist && Raspberry.playlist.length > 0) {
-	       if (Raspberry.idPlaying + 1 > Raspberry.playlist.length) {
-	       } else {
-		   Raspberry.idPlaying++;
-	       }
-		console.log("music:player:next -> Raspberry.idPlaying="+Raspberry.idPlaying);
-		io.sockets.emit('music:player:next', {"idPlaying": Raspberry.idPlaying});
-	}
+        Playlist.findOne({}, function (err, playlist) {
+           if(!err) {
+               if (playlist && playlist.tracks.length > playlist.idPlaying) {
+                   playlist.idPlaying ++;
+                   playlist.save(function (err) {
+                       if (!err) {
+                           io.sockets.emit('music:player:next', {"idPlaying": playlist.idPlaying});
+                       }
+                   })
+               } else {
+                   console.log("playlist : "+playlist);
+               }
+           } else {
+               console.log("ERROR:"+err);
+           }
+        });
     });
     socket.on("music:player:previous", function () {
-	if(Raspberry.playlist && Raspberry.playlist.length > 0) {
-		if (Raspberry.idPlaying - 1 < 0) {
-		    Raspberry.idPlaying = Raspberry.playlist.length - 1;
-		} else {
-		    Raspberry.idPlaying--;
-		}
-		console.log("music:player:previous -> Raspberry.idPlaying="+Raspberry.idPlaying);
-		io.sockets.emit('music:player:previous', {"idPlaying": Raspberry.idPlaying});
-	}
+        Playlist.findOne({}, function (err, playlist) {
+            if(!err) {
+                if (playlist && playlist.idPlaying > 0) {
+                    playlist.idPlaying --;
+                    playlist.save(function (err) {
+                        if (!err) {
+                            io.sockets.emit('music:player:previous', {"idPlaying": playlist.idPlaying});
+                        }
+                    })
+                }
+            }
+        });
     });
     socket.on('music:playing:get', function () {
         if (Raspberry.socket) { io.sockets.connected[Raspberry.socket.id].emit('sound:playing:get');
@@ -162,26 +203,26 @@ module.exports = function (io, socket) {
         socket.broadcast.emit('music:playing', data);
     });
     socket.on("music:track:get", function (request, callback) {
-    	if (request && request.source && request.id) {
-    		if (request.source == "spotify") {
-    			Spotify.SpotifyApi.getTrack(request.id)
-				  .then(function(data) {
-				  		var response = {"status": "success", "track": data};
-				  		if (!callback) {
-				  			socket.emit("music:track", response);
-				  		} else {
-				  			callback(response);
-				  		}
-				  }, function(err) {
-				  		var response = {"status": "error", "error": err};
-				  		if (!callback) {
-				  			socket.emit("music:track", response);
-				  		} else {
-				  			callback(response);
-				  		}
-				  });
-    		}
-    	}
+        if (request && request.source && request.id) {
+            if (request.source == "spotify") {
+                Spotify.SpotifyApi.getTrack(request.id)
+                    .then(function(data) {
+                        var response = {"status": "success", "track": data};
+                        if (!callback) {
+                            socket.emit("music:track", response);
+                        } else {
+                            callback(response);
+                        }
+                    }, function(err) {
+                        var response = {"status": "error", "error": err};
+                        if (!callback) {
+                            socket.emit("music:track", response);
+                        } else {
+                            callback(response);
+                        }
+                    });
+            }
+        }
     });
     socket.on('music:discovering', function (data) {
         winston.info("discovering");
@@ -246,7 +287,7 @@ module.exports = function (io, socket) {
                     }
                 });
             }
-        }
+        }playlise
 
     });
     socket.on("music:artist:get", function (data, callback) {
@@ -285,11 +326,14 @@ module.exports = function (io, socket) {
         }
         SpotifyAuth.isSet(function (isSet) {
             if (isSet) {
+                console.log("GET PLAYLIST");
                 Spotify.getPlaylists(function (err, data) {
                     if (!err) {
+                        console.log("success");
                         response.status = "success";
                         response.playlists = data;
                     } else {
+                        console.log("error: "+err);
                         response.status = "error";
                         response.error = err;
                     }

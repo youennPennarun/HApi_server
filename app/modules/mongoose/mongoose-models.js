@@ -10,7 +10,8 @@ module.exports = function () {
             SoundcloudToken : mongoose.model('SoundcloudToken'),
             SpotifyToken : mongoose.model('SpotifyToken'),
             User : mongoose.model('User'),
-            Artist : mongoose.model('Artist')
+            Artist : mongoose.model('Artist'),
+            Playlist : mongoose.model('Playlist')
         };
     return models;
 };

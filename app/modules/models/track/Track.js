@@ -12,8 +12,8 @@ var Track = function (name, duration_ms, artists, album, spotifyData) {
     this.name = name;
     this.duration_ms = duration_ms;
     this.artists = artists;
-    this.album = album;
-    this.spotifyData = spotifyData;
+    this.album = {name: album.name, album_type: album.album_type, images: album.images, spotifyData: album.spotifyData};
+    this.spotifyData = {id: spotifyData.id, uri: spotifyData.uri};
 };
 Track.getTrack = function (id, source) {
     var deferred = Q.defer();
@@ -61,6 +61,8 @@ Track.fromSpotify = function(data) {
     for(var i = 0; i < data.artists.length; i ++) {
     	artists.push(new Artist(data.artists[i].name, new SpotifyArtist(data.artists[i].id, data.artists[i].uri)));
 	}
-    return new Track(data.name, data.duration_ms, artists, album, new SpotifyTrack(data.id, data.uri));
+    var track = new Track(data.name, data.duration_ms, artists, album, new SpotifyTrack(data.id, data.uri));
+    console.log(track);
+    return track;
 };
 module.exports = Track;
