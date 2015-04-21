@@ -3,6 +3,7 @@
 /*global console*/
 var RaspberryModel = require('../modules/mongoose/mongoose-models.js')().Raspberry,
     Raspberry = require('../modules/Raspberry.js'),
+    GCM = require('../modules/GCM.js'),
     Spotify = require("../modules/Spotify/Spotify.js");
     winston = require('winston');
 module.exports = function (io, socket) {
@@ -87,6 +88,9 @@ module.exports = function (io, socket) {
         socket.broadcast.emit('pi:notify:sound:volume', data);
     });
     socket.on('pi:player:status', function (data){
+	console.log("pi:player:status->"+data.status);
         socket.broadcast.emit('pi:player:status', data);
+	GCM.broadcast({"pi:player:status": data.status});
+
     });
 };

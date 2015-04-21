@@ -6,7 +6,8 @@ var SpotifyAuth = require('./SpotifyAuth.js'),
     config = require("../../assets/private/config.json"),
     SpotifyWebApi = require('spotify-web-api-node'),
     mongoose = require("mongoose"),
-    models = require('../mongoose/mongoose-models.js')();
+    models = require('../mongoose/mongoose-models.js')(),
+    Q = require('q');
 var Spotify = function () {"use strict"; };
 Spotify.SpotifyApi = new SpotifyWebApi({
     clientId : config.spotify_config.client_id,
@@ -31,9 +32,24 @@ Spotify.getPlaylists = function (callback) {
     'use strict';
     Spotify.getMe(function(err, me) {
         if (!err) {
+            var response = {};
             Spotify.SpotifyApi.getUserPlaylists(Spotify.me.id, {limit: 50, offset: 0}).then(
                 function (data) {
-                    callback(null, data);
+                    response = data;
+                    console.log(data.total);
+                    var nbPromise = data.total - 50,
+                        promises = [];
+                    for (var i = 50; i < nbPromise+50; i+=50) {
+                        console.log("new playlist promise offset:"+i);
+                        promises.push(Spotify.SpotifyApi.getUserPlaylists(Spotify.me.id, {limit: 50, offset: i}));
+                    }
+                    Q.all(promises).then(function (results) {
+                        for (var i = 0; i < results.length; i++) {
+                            response.items = response.items.concat(results[i].items);
+                        }
+                        console.log("finally : nb items="+response.items.length);
+                        callback(null, response);
+                    }, console.error);
                 },
                 function (err) {
                     console.log(err);

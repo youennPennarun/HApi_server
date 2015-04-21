@@ -5,6 +5,7 @@ var config = require('../assets/private/config.json'),
     socketioJwt = require('socketio-jwt'),
     JSONResult = require('../modules/models/JSONResult.js'),
     MusicGraph = require('../modules/MusicGraph.js'),
+    GCM = require('../modules/GCM.js'),
     Spotify = require('../modules/Spotify/Spotify.js'),
     models = require('../modules/mongoose/mongoose-models.js')(),
     RaspberryModel = models.Raspberry,
@@ -17,7 +18,7 @@ var socketHandler = function (server) {
     'use strict';
     var io = require('socket.io').listen(server);
     //raspberry = null;
-
+    GCM.io = io;
     io.use(socketioJwt.authorize({
         secret: config.jwtSecret,
         handshake: true
@@ -29,11 +30,22 @@ var socketHandler = function (server) {
         require("./soundSocket.js")(io, socket);
         require("./playlistSocket.js")(io, socket);
 
-        socket.on('pi:is-logged-in', function () {
+        socket.on('pi:is-logged-in', function (callback) {
             RaspberryModel.findOne({}, function (rasp) {
-                socket.emit('pi:is-logged-in', (rasp && rasp.socketId !== undefined));
+		console.log("response for pi logged in = " + (rasp && rasp.socketId !== undefined));
+		if(!callback) {
+                	socket.emit('pi:is-logged-in', (rasp && rasp.socketId !== undefined));
+		} else {
+			callback((rasp && rasp.socketId !== undefined));
+		}
             })
         });
+	socket.on("gcm:register", function(data) {
+		if (data && data.regId) {
+			console.log("NEW REGiD:"+data.regId);
+			GCM.regIds.push(data.regId);
+		}
+	});
 
         socket.on('pi:login', function (data) {
             Logger.info('pi logged in', {"socketId": socket.id});

@@ -12,6 +12,7 @@ var MusicGraph = require('../modules/MusicGraph.js'),
     models = require('../modules/mongoose/mongoose-models.js')(),
     PlaylistModel = models.Playlist,
     Playlist = require('../modules/Playlist.js'),
+    GCM = require('../modules/GCM.js'),
     Q = require("q");
 module.exports = function (io, socket) {
     'use strict';
@@ -101,6 +102,7 @@ module.exports = function (io, socket) {
                 playlist.idPlaying = data.idPlaying;
                 playlist.save();
                 socket.broadcast.emit('music:playlist:playing:id', data);
+		GCM.broadcast({'music:playlist:playing:id':data.idPlaying});
             }
         })
 
@@ -139,7 +141,8 @@ module.exports = function (io, socket) {
                 Track.getPlaylistTracks(data.playlist.id).then(function(tracks) {
                     Playlist.setPlaylist(tracks).then(function (data) {
                         console.log("--->theb");
-                        console.log(data)
+                        console.log(data);
+			GCM.broadcast({"music:playlist:set": ""});
                         io.sockets.emit('music:playlist:set', {"type": "trackset", "tracks": data});
                     }, function (err) {
                         console.log(err);
