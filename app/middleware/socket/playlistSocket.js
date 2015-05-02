@@ -3,19 +3,21 @@
 /*global console*/
 /*global console*/
 /*jshint loopfunc:true*/
-var MusicGraph = require('../modules/MusicGraph.js'),
-    Artist = require('../modules/Artist.js'),
-    Spotify = require('../modules/Spotify/Spotify.js'),
-    SpotifyAuth = require('../modules/Spotify/SpotifyAuth.js'),
-    Track = require('../modules/models/track/Track.js'),
+var app = require("./../../../app.js"),
+    modules = require("./../../modules"),
+    MusicGraph = modules.music.musicGraph,
+    Artist = modules.models.artist,
+    Track = modules.models.track,
+    Playlist = modules.music.playlist,
+    Spotify = modules.spotify.spotify,
     winston = require('winston'),
-    models = require('../modules/mongoose/mongoose-models.js')(),
+    models = modules.mongoose.models(),
     PlaylistModel = models.Playlist,
-    Playlist = require('../modules/Playlist.js'),
-    GCM = require('../modules/GCM.js'),
+    gcm = app.middleware.gcm,
     Q = require("q");
 module.exports = function (io, socket) {
     'use strict';
+    console.log(app.middleware);
 
     socket.on("music:playlist:add", function (data) {
         console.log("music:playlist:add");
@@ -102,7 +104,8 @@ module.exports = function (io, socket) {
                 playlist.idPlaying = data.idPlaying;
                 playlist.save();
                 socket.broadcast.emit('music:playlist:playing:id', data);
-		GCM.broadcast({'music:playlist:playing:id':data.idPlaying});
+                console.log(gcm);
+		        gcm.broadcast({'music:playlist:playing:id':data.idPlaying});
             }
         })
 
@@ -138,11 +141,11 @@ module.exports = function (io, socket) {
                     console.log(err);
                 });
             } else if (data.type == "playlist" && data.playlist.id) {
-                Track.getPlaylistTracks(data.playlist.id).then(function(tracks) {
+/*                
+		Track.getPlaylistTracks(data.playlist.id).then(function(tracks) {
                     Playlist.setPlaylist(tracks).then(function (data) {
                         console.log("--->theb");
-                        console.log(data);
-			GCM.broadcast({"music:playlist:set": ""});
+			            GCM.broadcast({"music:playlist:set": ""});
                         io.sockets.emit('music:playlist:set', {"type": "trackset", "tracks": data});
                     }, function (err) {
                         console.log(err);
@@ -150,6 +153,7 @@ module.exports = function (io, socket) {
                 }, function (err) {
                     //TODO
                 });
+*/
             }
         }
     });

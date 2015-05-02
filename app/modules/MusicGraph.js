@@ -28,7 +28,7 @@ MusicGraph.searchArtist = function (data, callback) {
     }, function (err, response, body) {
         MusicGraph.responseHandler(response, body, function (err, data) {
             callback(err, JSON.parse(body));
-        })
+        });
     });
 };
 MusicGraph.playlist = function (data, callback) {
@@ -64,7 +64,7 @@ MusicGraph.playlist = function (data, callback) {
 MusicGraph.randomArtist = function (artistList, callback) {
     'use strict';
     var artist = {name: artistList[Math.floor((Math.random() * artistList.length))].name};
-    winston.info("getting " + artist.name + " id");
+    console.log("looking for "+ artist.name);
     MusicGraph.searchArtist({name: artist.name}, function (err, artists) {
         if (!err) {
             if (artists.data[0]) {
@@ -215,8 +215,7 @@ MusicGraph.randomPlaylist = function (artists, options) {
                     if (data.pagination.count < 1) {
                         deferred.reject("empty playlist");
                     } else {
-                        callback(null, data.data);
-                        deferred.resolve(data.data);
+                        deferred.resolve({playlist: data.data, request_options: options});
                     }
                 } else {
                     deferred.reject(err);
@@ -235,11 +234,12 @@ MusicGraph.randomPlaylist = function (artists, options) {
  * @param callback: [required]
  */
 MusicGraph.getTrack = function(artists, i, options) {
+    "use strict";
     var tempo = MusicGraph.fluidTempo(i, options.number);
     MusicGraph.randomPlaylist(artists, {tempo: tempo.value}, function (err, data) {
 
     });
-}
+};
 MusicGraph.playlistFromArtistNames = function (artists, options, callback) {
     'use strict';
     var i = 0,
@@ -254,9 +254,9 @@ MusicGraph.playlistFromArtistNames = function (artists, options, callback) {
     if (!options.tempo || (options.tempo !== 'any' && options.tempo !== 'increasing' && options.tempo !== 'descending')) {
         options.tempo = "any";
     }
+    requests = options.number;
     for (i = 0; i < options.number; i += 1) {
         (function getTrack(i) {
-            requests += 1;
             var tempo = MusicGraph.fluidTempo(i, options.number),
                 title,
                 artist_name,
@@ -265,13 +265,13 @@ MusicGraph.playlistFromArtistNames = function (artists, options, callback) {
                 .then(function(data) {
                     var valid = false,
                         current_track = {};
-                    if (data.length > 0) {
+                    if (data.playlist.length > 0) {
                         while (!valid) {
-                            random = Math.floor((Math.random() * data.length));
-                            title = data[random].title;
-                            winston.info("got " + data[random].title + " by " + data[random].artist_name);
-                            artist_name = data[random].artist_name;
+                            random = Math.floor((Math.random() * data.playlist.length));
+                            title = data.playlist[random].title;
+                            artist_name = data.playlist[random].artist_name;
                             valid = true;
+                            console.log("got " + data.playlist[random].title + " by " + data.playlist[random].artist_name);
                             playlist.forEach(function (track) {
                                 if (track.title === title && track.artist_name === artist_name) {
                                     valid = false;
@@ -279,55 +279,46 @@ MusicGraph.playlistFromArtistNames = function (artists, options, callback) {
                             });
                         }
                         current_track = {title: title, artist_name: artist_name, tempo: tempo};
-                        Q.fcall(function (){
-                            var deferred = Q.defer();
-                            if (options.return_type == "spotify_url") {
-                                Spotify.searchTrack({
-                                    artist: current_track.artist_name,
-                                    track: current_track.title
-                                }).then(
-                                    function (data) {
-                                        if(data.tracks && data.tracks.items) {
-                                            current_track.dataType = "api_data";
-                                            current_track.source = "spotify";
-                                            current_track.link = data.tracks.items[0];
-                                            playlist.push(current_track);
-                                            deferred.resolve();
+                            console.log("searching on spotify "+current_track.artist_name+"  "+current_track.title);
 
-                                        } else {
-                                            console.log("error");
-                                            deferred.reject();
+                            Spotify.searchTrack({
+                                artist: current_track.artist_name,
+                                track: current_track.title
+                            }).then(
+                                function (data) {
+                                    if(data.tracks && data.tracks.items) {
+                                        current_track.dataType = "api_data";
+                                        current_track.source = "spotify";
+                                        current_track.link = data.tracks.items[0];
+                                        playlist.push(current_track);
+                                        requests -= 1;
+                                        console.log(requests+" requests left");
+                                        if (!requests) {
+                                            callback(null, playlist);
                                         }
-                                    },
-                                    function (err) {
-                                        console.log(err);
-                                        deferred.reject(err);
+
+                                    } else {
+                                        console.log("error");
+                                        getTrack(i);
                                     }
-                                );
-                            } else {
-                                current_track.dataType = "basic";
-                                playlist.push(current_track);
-                                deferred.resolve();
-                            }
-                            return deferred.promise;
-                        }).then(function (){
-                            requests -= 1;
-                            console.log("then...")
-                            if (!requests) {
-                                callback(null, playlist);
-                            }
-                        }).fail(function (err){
-                            console.log("fail");
-                            getTrack(i);
-                        });
+                                },
+                                function (err) {
+                                    console.log(err);
+                                    console.log("fail!!!!!!!!!!!!!!!");
+                                    console.log(err);
+                                    getTrack(i);
+                                }
+                            );
 
 
                     } else {
+                        console.log(data);
                         valid = false;
                         getTrack(i);
                     }
                 }, function (err) {
-                    callback(err);
+                    console.log(err);
+                    getTrack(i);
                 });
         })(i);
     }

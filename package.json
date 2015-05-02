@@ -30,10 +30,8 @@
     "v8-profiler": "^5.2.3"
   },
   "dependencies": {
-    "JSONStream": "^0.10.0",
     "angular-local-storage": "^0.1.5",
     "bcrypt-nodejs": "0.0.3",
-    "body-parser": "~1.8.1",
     "bower": "1.3.12",
     "check-types": "^2.1.1",
     "connect-mongo": "^0.7.0",
@@ -43,7 +41,6 @@
     "express-session": "^1.9.3",
     "googleapis": "^1.0.22",
     "internet-timestamp": "0.0.1",
-    "jade": "~0.31.2",
     "jsonwebtoken": "^3.2.2",
     "mongoose": "^3.8.21",
     "mongoose-validator": "^1.0.3",
@@ -64,6 +61,10 @@
     "async": "~0.9.0",
     "q": "~1.2.0",
     "node-gcm": "~0.9.15",
-    "node-gcm-ccs": "git+https://github.com/jacobp100/node-gcm-ccs.git"
+    "node-gcm-ccs": "git+https://github.com/jacobp100/node-gcm-ccs.git",
+    "node-schedule": "~0.2.6",
+    "lodash": "~3.8.0",
+    "node-cache": "~2.1.1",
+    "scribe-js": "~2.0.4"
   }
 }

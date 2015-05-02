@@ -1,10 +1,14 @@
-var express = require('express'),
+var app = require("../../app.js"),
+    express = require('express'),
     jwt = require('jsonwebtoken'),
     router = express.Router(),
+    modules = require("../modules"),
     passport = require("../assets/private/passport.js"),
-    JSONResult = require('../modules/models/JSONResult.js'),
+    JSONResult = modules.models.jsonResult,
     config = require('../assets/private/config.json'),
-    User = require('../modules/mongoose/mongoose-models.js')().User;
+    Spotify = modules.spotify.spotify,
+    SpotifyAuth = modules.spotify.spotifyAuth,
+    User = modules.mongoose.models().User;
 
 router.get("/", function(req, res) {
     res.json(new JSONResult(JSONResult.status.success, req.session.passport.user));
@@ -66,4 +70,30 @@ router.get('/logout', function(req, res){
     res.json({});
 });
 
+router.get('/playlists', function (req, res) {
+    SpotifyAuth.isSet(function (isSet) {
+        if (isSet) {
+            console.log("GET PLAYLIST");
+            Spotify.getPlaylists(function (err, data) {
+                if (!err) {
+                    res.json(new JSONResult(JSONResult.status.success, data));
+                } else {
+                    console.log("error: "+err);
+                    res.json(new JSONResult(JSONResult.status.failure, {error: err, "source": "spotify"}));
+                }
+
+            });
+        } else {
+            res.json(new JSONResult(JSONResult.status.failure, {error: "invalid user"}));
+        }
+    });
+});
+router.post('/GCM', function (req, res) {
+	if (req.body && req.body.regId) {
+		console.log("NEW REGiD:"+req.body.regId);
+		app.middleware.gcm.regIds.push(req.body.regId);
+                res.json(new JSONResult(JSONResult.status.success));
+	}
+    
+});
 module.exports = router;

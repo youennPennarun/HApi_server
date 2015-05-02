@@ -7,7 +7,7 @@ module.exports = function () {
 
         Schema = mongoose.Schema,
         alarmSchema = new Schema({
-            time: Date,
+            date: Date,
             enable: Boolean,
             repeat: Boolean
         }),

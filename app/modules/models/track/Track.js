@@ -16,6 +16,7 @@ var Track = function (name, duration_ms, artists, album, spotifyData) {
     this.spotifyData = {id: spotifyData.id, uri: spotifyData.uri};
 };
 Track.getTrack = function (id, source) {
+    "use strict";
     var deferred = Q.defer();
     if(!source) {
         source = "spotify";
@@ -26,43 +27,51 @@ Track.getTrack = function (id, source) {
         }, function(err) {
             deferred.reject(err);
         });
-     return deferred.promise;
+    return deferred.promise;
 };
 Track.getPlaylistTracks = function (playListId) {
     var deferred = Q.defer();
     SpotifyAuth.isSet(function (isSet) {
-	    if (isSet) {
-		    Spotify.SpotifyApi.getPlaylistTracks(Spotify.me.id, playListId, { 'offset' : 0, 'limit' : 50, 'fields' : 'items' })
-		    .then(
-		    function (data) {
-		    	var tracks = []
-		    	if (data && data.items) {
-		    		for( var i = 0 ; i < data.items.length; i ++) {
-		    			if(data.items[i].track) {
-		    				tracks.push(Track.fromSpotify(data.items[i].track));
-		    			}
-		    		}
-		    		deferred.resolve(tracks);
-		    	}
-		    }, function (err) {
-			    deferred.reject(err);
-		    });
-            } else {
-		deferred.reject("SpotifyAuth not set");
-	    }
-        });
-     return deferred.promise;
-    
+        if (isSet) {
+            Spotify.getMe(function (err, me) {
+                if (!err) {
+                    Spotify.SpotifyApi.getPlaylistTracks(Spotify.me.id, playListId, {
+                        'offset': 0,
+                        'limit': 50,
+                        'fields': 'items'
+                    })
+                        .then(
+                        function (data) {
+                            var tracks = []
+                            if (data && data.items) {
+                                for (var i = 0; i < data.items.length; i++) {
+                                    if (data.items[i].track) {
+                                        tracks.push(Track.fromSpotify(data.items[i].track));
+                                    }
+                                }
+                                deferred.resolve(tracks);
+                            }
+                        }, function (err) {
+                            deferred.reject(err);
+                        });
+                }
+            });
+        } else {
+            deferred.reject("SpotifyAuth not set");
+        }
+    });
+    return deferred.promise;
+
 }
 
 Track.fromSpotify = function(data) {
-	var album = new Album(data.album.name, data.album.album_type, data.album.images, new SpotifyAlbum(data.album.id, data.album.uri));
+    "use strict";
+    var album = new Album(data.album.name, data.album.album_type, data.album.images, new SpotifyAlbum(data.album.id, data.album.uri));
     var artists = [];
     for(var i = 0; i < data.artists.length; i ++) {
-    	artists.push(new Artist(data.artists[i].name, new SpotifyArtist(data.artists[i].id, data.artists[i].uri)));
-	}
+        artists.push(new Artist(data.artists[i].name, new SpotifyArtist(data.artists[i].id, data.artists[i].uri)));
+    }
     var track = new Track(data.name, data.duration_ms, artists, album, new SpotifyTrack(data.id, data.uri));
-    console.log(track);
     return track;
 };
 module.exports = Track;

@@ -3,7 +3,7 @@
         "success": "SUCCESS",
         "error": "ERROR"
     },
-    "error": {
+    "errors": {
         "UNKNOWN": {
             "code": -1,
             "message": "Unknown error",
@@ -22,7 +22,7 @@
         "NOT_LOGGED_IN": {
             "code": 401,
             "message": "Not logged in",
-            "source": "unknown"
+            "source": "passport"
         },
         "GOOGLE_NOT_SIGNED_UP": {
             "code": 10,

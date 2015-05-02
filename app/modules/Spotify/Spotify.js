@@ -49,7 +49,9 @@ Spotify.getPlaylists = function (callback) {
                         }
                         console.log("finally : nb items="+response.items.length);
                         callback(null, response);
-                    }, console.error);
+                    }, function(err) {
+                        callback(err);
+                    });
                 },
                 function (err) {
                     console.log(err);
@@ -130,7 +132,7 @@ Spotify.searchTrack = function (trackData) {
         searchStr += key + ":" + trackData[key];
         i += 1;
     }
-    return Spotify.SpotifyApi.searchTracks(searchStr)
+    return Spotify.SpotifyApi.searchTracks(searchStr);
 
 };
 

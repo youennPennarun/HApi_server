@@ -14,11 +14,13 @@ var isLoggedIn = function (req, res, next) {
     } else {
         console.log("STOP");
         // if they aren't redirect them to the home page
-        res.json(new JSONResult(JSONResult.status.error, JSONResult.error.NOT_LOGGED_IN));
+        res.json(new JSONResult(JSONResult.status.error, JSONResult.errors.NOT_LOGGED_IN));
     }
 };
 var routes = function (app) {
     "use strict";
+
+
     app.use('/', require('./index'));
     app.use('/user', require('./user'));
 
@@ -26,6 +28,7 @@ var routes = function (app) {
     app.all('/api/*', isLoggedIn, function (req, res, next) {
         next();
     });
+    app.use('/api/logs', app.scribe.webPanel());
     app.use('/api/alarms', require('./alarms'));
     app.use('/api/google-auth', require('./google-auth'));
     //app.use('/calendar', require('./calendar'));
@@ -36,6 +39,7 @@ var routes = function (app) {
     app.use('/api/echonest', require('./echonest'));
     app.use('/api/spotify', require('./spotify'));
     app.use('/api/artists', require('./artists'));
+    app.use('/api/player', require('./player'));
     app.use('/api/logs', require('./logs'));
 
 };

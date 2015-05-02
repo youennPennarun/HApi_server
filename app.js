@@ -21,7 +21,6 @@ var express = require('express'),
     GoogleAuth = require('./app/modules/Google/GoogleAuth.js'),
     SoundcloudAuth = require('./app/modules/Soundcloud/SoundcloudAuth.js'),
     SpotifyAuth = require('./app/modules/Spotify/SpotifyAuth.js'),
-    MusicGraph = require('./app/modules/MusicGraph.js'),
     passport = require('passport'),
     expressSession = require('express-session'),
     debug = require('debug')('app'),
@@ -30,9 +29,15 @@ var express = require('express'),
     sessionStore = new MongoStore({
         mongooseConnection: connection
     }),
+    NodeCache = require( "node-cache" ),
     Logger = require("./app/modules/Logger.js"),
+
+    scribe = require('scribe-js')(), //loads Scribe
     
     app = express();
+module.exports=app;
+app.cache = new NodeCache( { checkperiod: 0 } );
+app.scribe = scribe;
 /*
 // view engine setup
 app.set('views', path.join(__dirname, 'app/views'));
@@ -52,6 +57,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, 'app/assets/public')));
 app.use(express.static(path.join(__dirname, 'dist')));
 app.use(express.static(__dirname + '/bower_components'));
+
+app.use(scribe.express.logger());
 /*
 
 app.use(expressSession({
@@ -78,8 +85,13 @@ SpotifyAuth.get();
 //Init Storage
 storage.initSync();
 //Setting routes
-var routes = require('./app/routes/routes')(app);
 app.set('port', process.env.PORT || 3000);
-var server = app.listen(app.get('port'));
-Logger.info("started at " + server.address().address + ":" + server.address().port);
-var socketHandler = require('./app/socket/socket.js')(server, sessionStore);
+app.server = app.listen(app.get('port'));
+var routes = require('./app/routes/routes')(app);
+Logger.info("started at " + app.server.address().address + ":" + app.server.address().port);
+
+app.middleware = {};
+require("./app/middleware/socket/socket.js").init(app);
+require("./app/middleware/music/player.js").init(app);
+require("./app/middleware/GCM.js").init(app);
+require("./app/middleware/alarmManager.js").init(app);
